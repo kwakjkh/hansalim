@@ -1,4 +1,8 @@
 window.addEventListener("load", function () {
+  // 콤마 기능
+  function priceToString(price) {
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
   // data.json을 로딩, 연결시킨다.
   const xhttp = new XMLHttpRequest();
   //    console.log(xhttp);
@@ -13,9 +17,17 @@ window.addEventListener("load", function () {
       let obj = JSON.parse(str);
       //   console.log(obj);
       VISUAL_ARR = obj.visual;
+      //   오늘의 물품
+      TODAY_GOOD = obj.todaygood;
+      // 세일물품
+      SALE_GOOD = obj.salegood;
       //   console.log(VISUAL_ARR);
       // ================
       showVisual(); // 비주얼을 화면에 배치
+      //오늘의 물품 화면에 배치
+      showTodayGood();
+      // 세일물품 화면 배치
+      showSaleGood();
     }
   };
   //   자료호출
@@ -25,6 +37,13 @@ window.addEventListener("load", function () {
   // 비주얼 슬라이드==
   let VISUAL_ARR;
   let visualTag = this.document.getElementById("data-visual");
+  //   오늘의 물품
+  let TODAY_GOOD;
+  let todayTag = this.document.getElementById("data-today");
+  let todayTag2 = this.document.getElementById("data-today2");
+  // 세일 물품
+  let SALE_GOOD;
+  let saleTag = this.document.getElementById("data-sale");
   // ==============================================
   // 비주얼 화면 출력 기능
   function showVisual() {
@@ -43,24 +62,156 @@ window.addEventListener("load", function () {
       html += tag;
     });
     visualTag.innerHTML = html;
-  }
-  // swiper 기능 ====================
-  const swVisual = new Swiper(".sw-visual", {
-    loop: true, // loop : 무한으로 도는 것.
-    autoplay: {
-      delay: 2500,
-      disableOnInteraction: false, // 상관없이 계속 autoplay.
-    },
-    navigation: {
-      prevEl: ".visual-prev",
-      nextEl: ".visual-next",
-    },
-    pagination: {
+    // swiper 기능 ====================
+    const swVisual = new Swiper(".sw-visual", {
+      loop: true, // loop : 무한으로 도는 것.
+      autoplay: {
+        delay: 2500,
+        disableOnInteraction: false, // 상관없이 계속 autoplay.
+      },
+      navigation: {
+        prevEl: ".visual-prev",
+        nextEl: ".visual-next",
+      },
+      pagination: {
         // 하나하나 넘어가는 것.
         el: ".visual-pg",
         type: "fraction",
       },
-  });
+    });
+    // 비주얼 슬라이드 머춤 기능
+    const swVisualPlay = document.querySelector(".visual-play");
+    swVisualPlay.addEventListener("click", function () {
+      if (swVisualPlay.classList.contains("active")) {
+        swVisual.autoplay.start();
+        swVisualPlay.classList.remove("active");
+      } else {
+        swVisual.autoplay.stop();
+        swVisualPlay.classList.add("active");
+      }
+    });
+  } // = showVisual end =
+  // 오늘의 물품 화면 출력 기능
+  function showTodayGood() {
+    let htmlTop = "";
+    let htmlBottom = "";
+    const topArr = TODAY_GOOD.filter(function (item, index) {
+      // console.log(item)
+      // console.log(index)
+      if (index < 4) {
+        return item;
+      }
+    });
 
+    // console.log(topArr);
+    topArr.forEach(function (item) {
+      // console.log(item)
+      let tag = `
+       <div class="good-box">
+     <!-- 제품이미지 -->
+     <a href="${item.link}" class="good-img">
+         <img src="../images/${item.pic}" alt="${item.name}"/>
+         <span class="good-type">${item.tag}</span>
+     </a>
+     <!-- 제품정보 -->
+     <a href="${item.link}" class="good-info">
+         <em>${item.name}</em>(<em>${item.unit}</em>)
+     </a>
+     <!-- 제품가격 -->
+     <a href="${item.link}" class="good-info-price">
+        ${priceToString(item.price)} <em>원</em>
+     </a>
+     <!-- 장바구니 이미지 -->
+     <button class="good-add-cart"></button>
+   </div>
+      `;
+      htmlTop += tag;
+    });
+    // 아랫부분 index 4~7
+    const bottomArr = TODAY_GOOD.filter(function (item, index) {
+      if (3 < index) {
+        return item;
+      }
+    });
+    bottomArr.forEach(function (item) {
+      let tag = `
+      <div class="good-box">
+     <!-- 제품이미지 -->
+     <a href="${item.link}" class="good-img">
+         <img src="../images/${item.pic}" alt="${item.name}"/>
+         <span class="good-type">${item.tag}</span>
+     </a>
+     <!-- 제품정보 -->
+     <a href="${item.link}" class="good-info">
+         <em>${item.name}</em>(<em>${item.unit}</em>)
+     </a>
+     <!-- 제품가격 -->
+     <a href="${item.link}" class="good-info-price">
+        ${priceToString(item.price)} <em>원</em>
+     </a>
+     <!-- 장바구니 이미지 -->
+     <button class="good-add-cart"></button>
+   </div>
+      `;
+      htmlBottom += tag;
+    });
+
+    todayTag.innerHTML = htmlTop;
+    todayTag2.innerHTML = htmlBottom;
+  }
+  // 세일 물품 화면 출력 기능
+  function showSaleGood() {
+    let html = `
+     <div class="swiper sw-sale">
+    <div class="swiper-wrapper">
+    
+    `;
+    SALE_GOOD.forEach(function (item) {
+      let tag = `
+      <div class= "swiper-slide">
+<div class="good-box">
+<!-- 제품이미지 -->
+<a href="${item.link}" class="good-img">
+    <img src="images/${item.pic}" alt="${item.name}">
+    <span class="good-type">${item.tag}</span>
+</a>
+<!-- 제품정보 -->
+<a href="${item.link}" class="good-info">
+    <em>${item.name}</em>(<em>${item.unit}</em>)
+</a>
+<!-- 제품가격 -->
+<a href="${item.link}" class="good-info-price">
+    ${priceToString(item.price)}<em>원</em>
+</a>
+<!-- 장바구니 이미지 -->
+<button class="good-add-cart"></button>
+</div>
+</div>
+      `;
+      html += tag;
+    });
+    // console.log(html)
+    html += `
+    </div>
+    </div>
+    `;
+    // console.log(html)
+    saleTag.innerHTML = html;
+    // swiper 기능
+    const swSale = new Swiper(".sw-sale", {
+      slidesPerView: 3, // 보여지는 슬라이드 개수
+      spaceBetween: 16, // 슬라이드 간의 간격
+      slidesPerGroup: 3, // 넘어가는 슬라이드 개수
+      navigation: {
+        prevEl: ".sale .slide-prev",
+        nextEl: ".sale .slide-next",
+      },
+      pagination: {
+        // 페이지 수 출력됨.
+        el: ".sale .slide-pg",
+        type: "fraction", // type을 하지 않으면 점으로 나옴.
+      },
+    });
+  }
   //   ==========================end
 });

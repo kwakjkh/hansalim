@@ -1,5 +1,6 @@
 window.addEventListener("load", function () {
   const header = this.document.querySelector(".header");
+  const wrap = this.document.querySelector(".wrap")
   //    console.log(header);
   let scy = 0;
   console.log(scy);
@@ -10,8 +11,10 @@ window.addEventListener("load", function () {
     // console.log(scy);
     if (scy > 0) {
       header.classList.add("active");
+      wrap.classList.add("active")
     } else {
       header.classList.remove("active");
+      wrap.classList.remove("active")
     }
   });
   //  펼침목록 보기 기능
