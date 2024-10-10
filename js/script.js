@@ -37,6 +37,8 @@ window.addEventListener("load", function () {
       BANNER_ARR = obj.bannerarr;
       // 제철요리
       SEASON_GOOD = obj.seasongood;
+      // 리뷰
+      REVIEW_ARR = obj.review;
       // ================
       // 비주얼을 화면에 배치
       showVisual();
@@ -58,6 +60,8 @@ window.addEventListener("load", function () {
       showBannerArr();
       // 제철요리 화면배치
       showSeasonGood();
+      // 제철요리 화면배치
+      showReview();
     }
   };
   //   자료호출
@@ -99,6 +103,9 @@ window.addEventListener("load", function () {
   // 제철요리 목록
   let SEASON_GOOD;
   let seosonTag = this.document.getElementById("data-season");
+  // 리뷰
+  let REVIEW_ARR;
+  let reviewTag = this.document.getElementById("data-review");
   // ==============================================
   // 비주얼 화면 출력 기능
   function showVisual() {
@@ -618,6 +625,127 @@ window.addEventListener("load", function () {
     });
     seosonTag.innerHTML = html;
     Scrollbar.initAll(); // smooth scrollbar 적용
+    checkBoxFn();
+    showBuyGood();
+  }
+  // 제철요리 전체 체크박스 기능
+  const buyTotal = this.document.getElementById("buy-total"); //총갯수
+  const bytTotalMoney = this.document.getElementById("buy-total-money");
+  let buyTotalCount = 0; // 기본값
+  let buyTotalMoneyPrice = 0; // 기본값
+  // 전체 체크박스 기능
+  const chkAll = this.document.getElementById("chkall");
+  chkAll.addEventListener("change", function () {
+    const chkArr = document.querySelectorAll(".season-item");
+    // console.log(chkArr);
+
+    if (chkAll.checked) {
+      // 전체 체크를 해야하는 경우
+      chkArr.forEach(function (item) {
+        // console.log(item);
+        item.checked = true;
+      });
+    } else {
+      chkArr.forEach(function (item) {
+        // console.log(item);
+        item.checked = false;
+      });
+    }
+    // 계산출력 기능 호출
+    showBuyGood();
+  });
+  // 체크박스 각각의 기능
+  function checkBoxFn() {
+    const chkArr = document.querySelectorAll(".season-item");
+    chkArr.forEach(function (item) {
+      // console.log(item);
+      item.addEventListener("change", function () {
+        // 계산출력 기능 호출
+        showBuyGood();
+      });
+    });
+  }
+  // 계산출력하는 기능 함수
+  function showBuyGood() {
+    // 체크가 된 값을 카운팅하고 더한다.
+    let count = 0; //체크된 상품의 수를 저장할 변수
+    let priceTotal = 0; //체크된 상품들의 총 가격을 저장할 변수
+    const chkArr = document.querySelectorAll(".season-item");
+    //모든 체크박스 요소를 가져와서 배열에 저장
+    chkArr.forEach(function (item) {
+      // console.log(item);
+      const state = item.checked; //현재 체크박스에 체크상태를 확인
+      // console.log(state);
+      if (state) {
+        // 체크박스가 되어있으면
+        count += 1; // 체크된 상품의 수를 증가 count++
+        // console.log(count);
+        const price = parseInt(item.value);
+        // console.log(price);
+        priceTotal += price;
+      }
+    });
+    // 체크된 상품의 수를 전역변수에 저장
+    buyTotalCount = count;
+    // console.log(buyTotalCount);
+    // 총가격을 전역변수에 저장
+    buyTotalMoneyPrice = priceTotal;
+    // console.log(buyTotalMoneyPrice);
+    // 체크된 갯수만큼 갯수 변경
+    buyTotal.innerHTML = buyTotalCount;
+    // 체크된 갯수만큼 금액 변경
+    bytTotalMoney.innerHTML = priceToString(buyTotalMoneyPrice);
+  }
+  // 리뷰 기능 함수
+  function showReview() {
+    let html = `
+    <div class="swiper sw-review">
+    <div class="swiper-wrapper">
+    `;
+    // 데이터처리
+    REVIEW_ARR.forEach(function (item) {
+      // console.log(item);
+      const tag = `
+      <div class="swiper-slide">
+<div class="review-box">
+    <a href="${item.link}">
+        <div class= "review-box-desc">
+            <span class= " review-box-title">
+                ${item.title}
+            </span>
+            <span class="review-box-star"> ${item.star} </span>
+            <span class="review-box-img">
+                <img src="images/${item.pic}" alt="${item.title}"/>
+            </span>
+        </div>
+        <p class="review-box-txt">
+            ${item.txt}
+        </p>
+        <span class="review-box-user">${item.user} (${item.shop})</span>
+    </a>
+</div>
+</div>
+      `;
+      html += tag;
+    });
+    html += `
+    </div>
+</div>
+    `;
+    reviewTag.innerHTML = html;
+    const swReview = new Swiper(".sw-review" , {
+      slidesPerView: 3,
+      spaceBetween: 16,
+      slidesPerGroup: 3,
+      navigation: {
+        prevEl: ".review .slide-prev",
+        nextEl: ".review .slide-next",
+      },
+      pagination: {
+        el: ".review .slide-pg",
+        type: "fraction",
+      },
+    })
   }
   //   ==========================end
 });
